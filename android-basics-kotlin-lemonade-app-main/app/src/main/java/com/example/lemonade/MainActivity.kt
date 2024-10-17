@@ -32,18 +32,25 @@ class MainActivity : AppCompatActivity() {
     private val LEMONADE_STATE = "LEMONADE_STATE"
     private val LEMON_SIZE = "LEMON_SIZE"
     private val SQUEEZE_COUNT = "SQUEEZE_COUNT"
+
     // SELECT represents the "pick lemon" state
     private val SELECT = "select"
+
     // SQUEEZE represents the "squeeze lemon" state
     private val SQUEEZE = "squeeze"
+
     // DRINK represents the "drink lemonade" state
     private val DRINK = "drink"
+
     // RESTART represents the state where the lemonade has been drunk and the glass is empty
     private val RESTART = "restart"
+
     // Default the state to select
     private var lemonadeState = "select"
+
     // Default lemonSize to -1
     private var lemonSize = -1
+
     // Default the squeezeCount to -1
     private var squeezeCount = -1
 
@@ -67,10 +74,11 @@ class MainActivity : AppCompatActivity() {
         setViewElements()
         lemonImage!!.setOnClickListener {
             // TODO: call the method that handles the state when the image is clicked
+            clickLemonImage()
         }
         lemonImage!!.setOnLongClickListener {
             // TODO: replace 'false' with a call to the function that shows the squeeze count
-            false
+            showSnackbar()
         }
     }
 
@@ -111,6 +119,29 @@ class MainActivity : AppCompatActivity() {
 
         // TODO: lastly, before the function terminates we need to set the view elements so that the
         //  UI can reflect the correct state
+        when (lemonadeState) {
+            "select" -> {
+                setProperty("squeeze", lemonTree.pick(), 0)
+            }
+
+            "squeeze" -> {
+                squeezeCount += 1
+                lemonSize -= 1
+                if (lemonSize <= 0) {
+                    setProperty("drink", -1, squeezeCount)
+                }
+            }
+
+            "drink" -> setProperty("restart", -1, squeezeCount)
+            else -> setProperty("select", -1, -1)
+        }
+        setViewElements()
+    }
+
+    private fun setProperty(lemonadeState1: String, lemonSize1: Int, squeezeCount1: Int) {
+        lemonadeState = lemonadeState1
+        lemonSize = lemonSize1
+        squeezeCount = squeezeCount1
     }
 
     /**
@@ -126,7 +157,29 @@ class MainActivity : AppCompatActivity() {
         // TODO: Additionally, for each state, the lemonImage should be set to the corresponding
         //  drawable from the drawable resources. The drawables have the same names as the strings
         //  but remember that they are drawables, not strings.
+        when (lemonadeState) {
+            "select" -> {
+                textAction.text = getString(R.string.click_to_select_a_lemon_text)
+                lemonImage!!.setImageResource(R.drawable.lemon_tree)
+            }
+
+            "squeeze" -> {
+                textAction.text = getString(R.string.click_to_juice_the_lemon)
+                lemonImage!!.setImageResource(R.drawable.lemon_squeeze)
+            }
+
+            "drink" -> {
+                textAction.text = getString(R.string.click_to_drink_your_lemonade)
+                lemonImage!!.setImageResource(R.drawable.lemon_drink)
+            }
+
+            else -> {
+                textAction.text = getString(R.string.click_to_start_again)
+                lemonImage!!.setImageResource(R.drawable.lemon_restart)
+            }
+        }
     }
+
 
     /**
      * === DO NOT ALTER THIS METHOD ===
